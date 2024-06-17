@@ -1,46 +1,60 @@
 import streamlit as st
 import pandas as pd
 import pickle
+import os
 
-# Load the trained Naive Bayes classifier from the saved file
-file = 'pages/heart.csv'
-with open(file, 'rb') as model_file:
-    loaded_model = pickle.load(model_file)
+# Print the current working directory
+current_directory = os.getcwd()
+st.write(f"Current working directory: {current_directory}")
 
-st.title("Heart Disease Predictor 🩺")
-st.subheader("Enter patient details to predict heart disease status:")
+# Define the file path
+file_path = os.path.join('pages', 'heart.csv')
 
-# User inputs for patient details
-age_input = st.number_input("Age:", min_value=1, max_value=120, step=1, value=50)
-gender_input = st.selectbox("Gender:", ["Male", "Female"])
-chest_pain_type_input = st.selectbox("Chest Pain Type:", ["ATA", "NAP", "ASY", "TA"])
-resting_bp_input = st.number_input("Resting Blood Pressure:", min_value=50, max_value=200, step=1, value=120)
-cholesterol_input = st.number_input("Cholesterol (mg/dl):", min_value=100, max_value=600, step=1, value=200)
-fasting_bs_input = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
-resting_ecg_input = st.selectbox("Resting Electrocardiographic Results", ["Normal", "ST", "LVH"])
-max_hr_input = st.number_input("Maximum Heart Rate Achieved:", min_value=50, max_value=220, step=1, value=150)
-exercise_angina_input = st.selectbox("Exercise Induced Angina", ["Yes", "No"])
-oldpeak_input = st.number_input("ST Depression Induced by Exercise:", min_value=0.0, max_value=10.0, step=0.1, value=1.0)
-st_slope_input = st.selectbox("Slope of the Peak Exercise ST Segment", ["Up", "Flat", "Down"])
+# Check if the file exists
+if not os.path.exists(file_path):
+    st.error(f"Model file not found: {file_path}")
+else:
+    # Load the trained Naive Bayes classifier from the saved file
+    try:
+        with open(file_path, 'rb') as model_file:
+            loaded_model = pickle.load(model_file)
+    except Exception as e:
+        st.error(f"Error loading the model: {e}")
+    else:
+        st.title("Heart Disease Predictor 🩺")
+        st.subheader("Enter patient details to predict heart disease status:")
 
-# Function to make a prediction
-def predict_heart_disease(age, gender, chest_pain_type, resting_bp, cholesterol, fasting_bs, resting_ecg, max_hr, exercise_angina, oldpeak, st_slope):
-    # Encode the categorical variables as required by the model
-    gender = 1 if gender == "Male" else 0
-    chest_pain_type = {"ATA": 1, "NAP": 2, "ASY": 3, "TA": 4}[chest_pain_type]
-    resting_ecg = {"Normal": 0, "ST": 1, "LVH": 2}[resting_ecg]
-    exercise_angina = 1 if exercise_angina == "Yes" else 0
-    st_slope = {"Up": 1, "Flat": 2, "Down": 3}[st_slope]
+        # User inputs for patient details
+        age_input = st.number_input("Age:", min_value=1, max_value=120, step=1, value=50)
+        gender_input = st.selectbox("Gender:", ["Male", "Female"])
+        chest_pain_type_input = st.selectbox("Chest Pain Type:", ["ATA", "NAP", "ASY", "TA"])
+        resting_bp_input = st.number_input("Resting Blood Pressure:", min_value=50, max_value=200, step=1, value=120)
+        cholesterol_input = st.number_input("Cholesterol (mg/dl):", min_value=100, max_value=600, step=1, value=200)
+        fasting_bs_input = st.selectbox("Fasting Blood Sugar > 120 mg/dl", [0, 1])
+        resting_ecg_input = st.selectbox("Resting Electrocardiographic Results", ["Normal", "ST", "LVH"])
+        max_hr_input = st.number_input("Maximum Heart Rate Achieved:", min_value=50, max_value=220, step=1, value=150)
+        exercise_angina_input = st.selectbox("Exercise Induced Angina", ["Yes", "No"])
+        oldpeak_input = st.number_input("ST Depression Induced by Exercise:", min_value=0.0, max_value=10.0, step=0.1, value=1.0)
+        st_slope_input = st.selectbox("Slope of the Peak Exercise ST Segment", ["Up", "Flat", "Down"])
 
-    # Prepare the features for prediction
-    features = [age, gender, chest_pain_type, resting_bp, cholesterol, fasting_bs, resting_ecg, max_hr, exercise_angina, oldpeak, st_slope]
+        # Function to make a prediction
+        def predict_heart_disease(age, gender, chest_pain_type, resting_bp, cholesterol, fasting_bs, resting_ecg, max_hr, exercise_angina, oldpeak, st_slope):
+            # Encode the categorical variables as required by the model
+            gender = 1 if gender == "Male" else 0
+            chest_pain_type = {"ATA": 1, "NAP": 2, "ASY": 3, "TA": 4}[chest_pain_type]
+            resting_ecg = {"Normal": 0, "ST": 1, "LVH": 2}[resting_ecg]
+            exercise_angina = 1 if exercise_angina == "Yes" else 0
+            st_slope = {"Up": 1, "Flat": 2, "Down": 3}[st_slope]
 
-    # Use the model to get the prediction
-    prediction = loaded_model.predict([features])
-    return prediction[0]
+            # Prepare the features for prediction
+            features = [age, gender, chest_pain_type, resting_bp, cholesterol, fasting_bs, resting_ecg, max_hr, exercise_angina, oldpeak, st_slope]
 
-# Display button and result
-if st.button('Predict'):
-    predicted_status = predict_heart_disease(age_input, gender_input, chest_pain_type_input, resting_bp_input, cholesterol_input, fasting_bs_input, resting_ecg_input, max_hr_input, exercise_angina_input, oldpeak_input, st_slope_input)
-    st.text("The predicted heart disease status based on the given patient details is:")
-    st.text_area(label="", value="Heart Disease Present" if predicted_status == 1 else "No Heart Disease", height=100)
+            # Use the model to get the prediction
+            prediction = loaded_model.predict([features])
+            return prediction[0]
+
+        # Display button and result
+        if st.button('Predict'):
+            predicted_status = predict_heart_disease(age_input, gender_input, chest_pain_type_input, resting_bp_input, cholesterol_input, fasting_bs_input, resting_ecg_input, max_hr_input, exercise_angina_input, oldpeak_input, st_slope_input)
+            st.text("The predicted heart disease status based on the given patient details is:")
+            st.text_area(label="", value="Heart Disease Present" if predicted_status == 1 else "No Heart Disease", height=100)
