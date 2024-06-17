@@ -1,13 +1,11 @@
-
-
 import streamlit as st
 import pandas as pd
 import pickle
 
-
 # Load the trained Naive Bayes classifier from the saved file
 file = 'pages/sentimentAnalyzerTest_model.sav'
-loaded_model = pickle.load(open(file, 'rb'))
+with open(file, 'rb') as model_file:
+    loaded_model = pickle.load(model_file)
 
 st.title("Heart Disease Predictor 🩺")
 st.subheader("Enter patient details to predict heart disease status:")
@@ -45,4 +43,4 @@ def predict_heart_disease(age, gender, chest_pain_type, resting_bp, cholesterol,
 if st.button('Predict'):
     predicted_status = predict_heart_disease(age_input, gender_input, chest_pain_type_input, resting_bp_input, cholesterol_input, fasting_bs_input, resting_ecg_input, max_hr_input, exercise_angina_input, oldpeak_input, st_slope_input)
     st.text("The predicted heart disease status based on the given patient details is:")
-    st.text_area(label="", value=str(predicted_status), height=100)
+    st.text_area(label="", value="Heart Disease Present" if predicted_status == 1 else "No Heart Disease", height=100)
