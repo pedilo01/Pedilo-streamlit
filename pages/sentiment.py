@@ -17,7 +17,8 @@ message = st.text_input("Tell me what you feel today:")
 
 # Load the trained Naive Bayes classifier from the saved file
 model_filename = './pages/Pedilo_SentimentAnalyzer_Model.sav'
-with open(model_filename, 'rb') as file:
+   with open(model_filename, 'rb') as file:
+    loaded_model = pickle.load(file)
    
 # Define function to extract features from the input message
 def word_features(words):
