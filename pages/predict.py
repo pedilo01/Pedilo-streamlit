@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 
 # Load the trained Naive Bayes classifier from the saved file
-file = 'pages/sentimentAnalyzerTest_model.sav'
+file = 'pages/heart.csv'
 with open(file, 'rb') as model_file:
     loaded_model = pickle.load(model_file)
 
